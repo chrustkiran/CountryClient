@@ -1,9 +1,14 @@
 const CountryService  = {
 
- process : (zipName)=>{
-    const PROCESS_URL = 'process?zipname=';
-    return fetch(process.env.REACT_APP_BASE_URL+PROCESS_URL+zipName)
-    .then(response => response.json());
+ process : (formData)=>{
+    let headers = new Headers();
+    headers = headers.delete('Content-Type')
+    const PROCESS_URL = process.env.REACT_APP_BASE_URL  + 'process';
+    return fetch(PROCESS_URL, {
+        method: 'post',
+        body: formData,
+        headers : headers
+    });
 },
 
 getCountryInfo : () => {
