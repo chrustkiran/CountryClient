@@ -89,8 +89,9 @@ class Main extends React.Component {
       e.preventDefault();
       const formData = new FormData();
       formData.append('file',this.state.file);
-
+      this.setState({loading : true});
       CountryService.process(formData).then(res => {
+        this.setState({loading : false});
        if(res.ok){
         this.setState({error : false});
         res.json().then(resJson => {
@@ -135,7 +136,7 @@ class Main extends React.Component {
     return (
         <div >
            <form onSubmit={this.onFormSubmit}>
-                <h1>File Upload</h1>
+                <h1>Country Process</h1>
                 <input type="file" name="myImage" onChange= {this.onChange} />
                 <button type="submit">Process</button>
             </form>   <Button onClick={this.onDelete} style={{marginTop : '20px', marginRight: '2px'}} > <DeleteTwoTone twoToneColor="#eb2f96" /> </Button>
