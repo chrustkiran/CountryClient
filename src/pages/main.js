@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import ReactDOM from 'react-dom';
 import 'antd/dist/antd.css';
 import { Form, Input, Button, Row, Col, Layout, Alert,Table, Tag } from 'antd';
@@ -8,11 +8,22 @@ import {
   } from '@ant-design/icons';
 
 import CountryService from '../services/countryService';
+import axios from 'axios';
+
+
+
 
 
 
 class Main extends React.Component {
-      
+    
+  
+  constructor(props){
+    super(props);
+    const FIND_URL = process.env.REACT_APP_BASE_URL  + 'findAll';
+    this.evtSource = new EventSource(FIND_URL);
+  }
+
 
     state = {
         loading : false,
@@ -66,6 +77,9 @@ class Main extends React.Component {
     },
   ];
    
+  
+
+
 
 
     onSubmitProcess = (zipname)=>{
@@ -84,24 +98,24 @@ class Main extends React.Component {
       }   
     }
 
+    fetch = () =>{
+      this.evtSource.onmessage = e =>{
+        console.log(JSON.parse(e.data));
+      }
+    }
 
-    onFormSubmit = (e) =>{
+
+
+     onFormSubmit = (e) =>{
       e.preventDefault();
       const formData = new FormData();
       formData.append('file',this.state.file);
       this.setState({loading : true});
-      CountryService.process(formData).then(res => {
-        this.setState({loading : false});
-       if(res.ok){
-        this.setState({error : false});
-        res.json().then(resJson => {
-          this.setState({data : resJson});
-        });
-       } else {
-         console.log(res);
-         this.setState({error : true});
-       }
-      })
+      CountryService.process(formData).then( res =>
+        {
+            this.setState({loading : false});
+        }
+      );
    
   }
   onChange = (e) => {
@@ -109,6 +123,13 @@ class Main extends React.Component {
   }
 
 
+  componentDidMount(){
+    this.evtSource.onmessage = e =>{
+      this.setState({data :  [...this.state.data, JSON.parse(e.data)]});
+      console.log(e.data);
+    }
+  
+  }
 
     onDelete = () => {
       this.setState({deletePressed : true});
@@ -122,9 +143,28 @@ class Main extends React.Component {
       };
  
 
+      fetchCont = ()=>{
+        
+      }
+
+
+      startEventSource() {
+        this.eventSource = new EventSource(`https://countrytestapi.herokuapp.com/findAll`);
+        this.eventSource.onmessage = e =>{
+          this.setState({data :  [...this.state.data, JSON.parse(e.data)]});
+          console.log(e.data);
+        }
+
+        
+      }
+    
   
 
   render() {
+
+
+    //this.fetch();
+
     console.log('re-rendering');
     let table = <div></div>
     if(this.state.error == true){
